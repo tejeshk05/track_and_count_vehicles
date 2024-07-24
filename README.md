@@ -14,7 +14,7 @@ The purpose of this project is to demonstrate the application of deep learning m
   
 - **Line Zone Counting**: Counts vehicles as they cross a specified line within the video.
   
-- **Annotated Video Output: Generates an output video with bounding boxes, labels, and vehicle count annotations.
+- **Annotated Video Output**: Generates an output video with bounding boxes, labels, and vehicle count annotations.
 
 ## Getting Started
 
