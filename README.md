@@ -49,10 +49,6 @@ https://github.com/user-attachments/assets/62255053-6b9e-4fb1-94b1-2c936b0acf30
 
 ## Requirements
 - Python 3.6+
-- Streamlit
-- requests
-- BeautifulSoup4
-- nltk
 
 ## How It Works
 
