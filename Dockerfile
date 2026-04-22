@@ -24,8 +24,8 @@ RUN mkdir -p uploads output static models
 # Copy the rest of the application code into the container
 COPY . .
 
-# Expose the port the app runs on
-EXPOSE 8000
+# Expose the port the app runs on (Hugging Face expects 7860)
+EXPOSE 7860
 
 # Command to run the application
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
