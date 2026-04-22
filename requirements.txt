@@ -1,0 +1,10 @@
+ultralytics>=8.3.0
+supervision>=0.21.0
+opencv-python>=4.9.0
+numpy>=1.26.0,<2.0.0
+easyocr>=1.7.0
+fastapi>=0.104.0
+uvicorn>=0.23.2
+python-multipart>=0.0.6
+imageio>=2.33.0
+imageio-ffmpeg>=0.4.9

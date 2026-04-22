@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vehicle Tracking AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        
+        :root {
+            --bg: #09090b;
+            --panel: rgba(24, 24, 27, 0.7);
+            --border: rgba(63, 63, 70, 0.5);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(147, 51, 234, 0.15), transparent 25%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        header { text-align: center; margin-bottom: 3rem; }
+        h1 { font-weight: 800; font-size: 2.5rem; letter-spacing: -0.05em; background: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; color: transparent; }
+        p.subtitle { color: var(--text-muted); margin-top: 0.5rem; font-size: 1.1rem; }
+
+        .glass-panel {
+            background: var(--panel);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .upload-area {
+            display: block;
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 4rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(0,0,0,0.2);
+        }
+        .upload-area:hover { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); }
+        .upload-area input { display: none; }
+        .upload-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 1.5rem;
+        }
+        .btn:hover { background: var(--primary-hover); }
+        .btn:disabled { background: var(--border); cursor: not-allowed; }
+
+        /* Configuration step */
+        #step-config { display: none; }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: #000;
+        }
+        canvas {
+            display: block;
+            margin: 0 auto;
+            max-width: 100%;
+            max-height: 70vh;
+            width: auto;
+            height: auto;
+            cursor: crosshair;
+        }
+        
+        .instructions {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+            margin-top: 1rem;
+            color: #bfdbfe;
+            line-height: 1.5;
+        }
+
+        /* Processing Step */
+        #step-processing { display: none; text-align: center; padding: 4rem 0; }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 2rem;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Result Step */
+        #step-result { display: none; }
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        .metric-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+        }
+        .metric-val { font-size: 2.5rem; font-weight: 800; color: #60a5fa; margin-top: 0.5rem; }
+        .metric-label { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
+        
+        video {
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .github-link {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .github-link:hover { color: var(--text); }
+        .github-link svg { width: 24px; height: 24px; fill: currentColor; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="https://github.com/tejeshk05" target="_blank" class="github-link">
+        <svg viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        GitHub
+    </a>
+    <header>
+        <h1>Vehicle Tracking AI</h1>
+        <p class="subtitle">Powered by YOLO11, EasyOCR, and Supervision</p>
+    </header>
+
+    <div class="glass-panel" id="step-upload">
+        <label class="upload-area" id="dropzone">
+            <div class="upload-icon">📁</div>
+            <h2>Drag & Drop your video</h2>
+            <p class="subtitle" style="margin-top: 0.5rem">or click to browse (.mp4, .mov)</p>
+            <input type="file" id="fileInput" accept="video/mp4,video/quicktime">
+        </label>
+        <div style="text-align: center;">
+            <p id="fileName" style="margin-top: 1rem; color: #60a5fa; font-weight: bold;"></p>
+            <button class="btn" id="uploadBtn" style="display: none;">Continue Setup</button>
+        </div>
+    </div>
+
+    <div class="glass-panel" id="step-config">
+        <h2>Draw Counting Line</h2>
+        <div class="instructions">
+            <strong>Action Required:</strong> Click TWO points on the image below to draw the line. 
+            <br><span style="color: #60a5fa;">Important: Make sure to draw the line all the way across the entire road! ⚠️ If a vehicle drives past the ends of your line without actually touching it, it will not be counted.</span>
+        </div>
+        <div class="canvas-container">
+            <canvas id="previewCanvas"></canvas>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+            <button class="btn" style="background: transparent; border: 1px solid var(--border);" onclick="clearPoints()">Clear Line</button>
+            <button class="btn" id="processBtn" disabled>Start Intelligent Tracking</button>
+        </div>
+    </div>
+
+    <div class="glass-panel" id="step-processing">
+        <div class="spinner"></div>
+        <h2>Processing Video...</h2>
+        <p class="subtitle" style="margin-top: 1rem">Analyzing vehicles and scanning license plates via Neural Network.<br>This may take a minute depending on the duration of your video.</p>
+    </div>
+
+    <div class="glass-panel" id="step-result">
+        <h2>Tracking Complete</h2>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Total Vehicles IN</div>
+                <div class="metric-val" id="valIn">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Total Vehicles OUT</div>
+                <div class="metric-val" id="valOut">0</div>
+            </div>
+        </div>
+
+        <video id="resultVideo" controls autoplay></video>
+        
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="btn" onclick="location.reload()">Process Another Video</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let uploadedFilename = "";
+    let points = [];
+    
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const fileNameDisplay = document.getElementById('fileName');
+    const canvas = document.getElementById('previewCanvas');
+    const ctx = canvas.getContext('2d');
+    const processBtn = document.getElementById('processBtn');
+
+    // State Navigation
+    function showStep(stepId) {
+        ['step-upload', 'step-config', 'step-processing', 'step-result'].forEach(id => {
+            document.getElementById(id).style.display = (id === stepId) ? 'block' : 'none';
+        });
+    }
+
+    // File Selection Handling
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            fileNameDisplay.textContent = e.target.files[0].name;
+            uploadBtn.style.display = 'inline-block';
+        }
+    });
+
+    // Handle Upload & Fetch First Frame
+    uploadBtn.addEventListener('click', async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        showStep('step-processing');
+        document.querySelector('#step-processing h2').innerText = "Uploading to Server...";
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/upload', { method: 'POST', body: formData });
+            const data = await res.json();
+            
+            if (data.error) throw new Error(data.error);
+
+            uploadedFilename = data.filename;
+            
+            // Setup Canvas with preview image
+            const img = new Image();
+            img.onload = () => {
+                // Resize canvas pixel map to exactly match image resolution
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                window.previewImg = img;
+                showStep('step-config');
+            };
+            img.src = data.preview_url;
+
+        } catch (e) {
+            alert("Upload Error: " + e.message);
+            showStep('step-upload');
+        }
+    });
+
+    // Canvas interactivity to draw the points
+    canvas.addEventListener('click', (e) => {
+        if (points.length >= 2) return;
+
+        // Map CSS bounding box click to exact pixel coordinates
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top) * scaleY;
+
+        points.push([Math.round(x), Math.round(y)]);
+        drawPoints();
+        
+        if (points.length === 2) {
+            processBtn.disabled = false;
+        }
+    });
+
+    function clearPoints() {
+        points = [];
+        processBtn.disabled = true;
+        drawPoints();
+    }
+
+    function drawPoints() {
+        if (!window.previewImg) return;
+        // Redraw base image
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(window.previewImg, 0, 0);
+
+        // Draw circles for points
+        points.forEach(pt => {
+            ctx.beginPath();
+            ctx.arc(pt[0], pt[1], 15, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ef4444';
+            ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+        });
+
+        // Draw connecting line
+        if (points.length === 2) {
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            ctx.lineTo(points[1][0], points[1][1]);
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+        }
+    }
+
+    // Process Video Call
+    processBtn.addEventListener('click', async () => {
+        if (points.length !== 2) return;
+
+        showStep('step-processing');
+        document.querySelector('#step-processing h2').innerText = "Tracking Vehicles & Scanning Plates...";
+        
+        try {
+            const reqBody = {
+                filename: uploadedFilename,
+                line: points
+            };
+            
+            const res = await fetch('/api/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(reqBody)
+            });
+            
+            const data = await res.json();
+            if (data.error) throw new Error(data.error);
+
+            // Populate Results UI
+            document.getElementById('valIn').innerText = data.in_count;
+            document.getElementById('valOut').innerText = data.out_count;
+            
+            // Set video source and show results step!
+            const vid = document.getElementById('resultVideo');
+            vid.src = data.output_video_url;
+            
+            showStep('step-result');
+
+        } catch (e) {
+            alert("Error Processing Video: " + e.message);
+            showStep('step-config');
+        }
+    });
+</script>
+</body>
+</html>
