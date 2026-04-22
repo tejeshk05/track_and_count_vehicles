@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.venv
+output/
+uploads/
+*.mp4
+*.webm
+*.pt
+.git
+.gitignore
