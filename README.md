@@ -12,6 +12,8 @@ app_port: 7860
 
 > **Powered by FastAPI + YOLO11 + ByteTracker + Supervision + EasyOCR**
 
+### 🟢 Live Demo: [Try it on Hugging Face Spaces](https://huggingface.co/spaces/tejesh05/vehicle-tracker)
+
 ---
 
 ## ✨ Features
