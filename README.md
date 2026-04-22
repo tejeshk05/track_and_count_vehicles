@@ -1,3 +1,13 @@
+---
+title: Vehicle Tracker
+emoji: 🚗
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+app_port: 7860
+---
+
 # 🚗 Vehicle Tracking, Counting & Number Plate Detection
 
 > **Powered by FastAPI + YOLO11 + ByteTracker + Supervision + EasyOCR**
